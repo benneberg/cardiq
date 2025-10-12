@@ -1,0 +1,949 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CardIQ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #000;
+            --accent: #ff0;
+            --bg: #fff;
+            --text: #000;
+            --border: 4px;
+            --radius: 0;
+            --shadow: 4px 4px 0 #000;
+            --font-size: 16px;
+            --line-height: 1.4;
+        }
+        body {
+            font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+        }
+        .neo-card {
+            border: var(--border) solid var(--primary);
+            background: var(--bg);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .neo-btn {
+            border: var(--border) solid var(--primary);
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .neo-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+        .neo-input, .neo-select, .neo-textarea {
+            border: var(--border) solid var(--primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            background: var(--bg);
+            color: var(--text);
+            width: 100%;
+            padding: 0.5rem;
+        }
+        .progress-bar-wrap {
+            height: 24px;
+            border: var(--border) solid var(--primary);
+            background: var(--bg);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .chat-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 320px;
+            height: 100vh;
+            border-left: var(--border) solid var(--primary);
+            background: var(--bg);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            z-index: 1050;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow: auto;
+        }
+        .chat-panel.open {
+            transform: translateX(0);
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .chat-msg {
+            border: var(--border) solid var(--primary);
+            padding: 0.5rem;
+            background: var(--bg);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            max-width: 90%;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            background: var(--accent);
+        }
+        .chat-input-group {
+            display: flex;
+            border-top: var(--border) solid var(--primary);
+        }
+        .chat-input {
+            flex: 1;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            resize: none;
+        }
+        .modal-overlay {
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1040;
+            display: none;
+        }
+        .modal-content {
+            max-width: 600px;
+            margin: 0;
+            background: var(--bg);
+            border: var(--border) solid var(--primary);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            position: absolute;
+            right: 0;
+            top: 80px;
+            z-index: 1051;
+                }
+        .tip-card {
+            background: var(--accent);
+        }
+        .card-done {
+            opacity: 0.6;
+            background: #f5f5f5;
+        }
+        @media (max-width: 576px) {
+            .chat-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="neo-card d-flex justify-content-between align-items-center">
+        <h1 class="h4 mb-0">CardIQ</h1>
+        <div class="d-flex gap-2">
+            <select id="topicSelect" class="neo-select" style="width:auto;"></select>
+            <button id="newTopicBtn" class="neo-btn">NEW</button>
+            <button id="settingsBtn" class="neo-btn"><i class="fa-solid fa-gear"></i></button>
+            <button id="chatToggleBtn" class="neo-btn"><i class="fa-solid fa-comments"></i></button>
+        </div>
+    </header>
+
+    <main class="container my-3">
+        <section id="dailyTip" class="neo-card tip-card">
+            <h5>Daily Random Tip</h5>
+            <div id="tipContent">Loading tip...</div>
+        </section>
+
+        <section class="neo-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>Progress</span>
+                <span id="progressText">0/0 (0%)</span>
+            </div>
+            <div class="progress-bar-wrap">
+                <div id="progressBar" class="progress-bar-inner"></div>
+            </div>
+        </section>
+
+        <section class="neo-card">
+            <div class="d-flex gap-2 mb-3">
+                <button class="neo-btn filter-btn active" data-filter="all">All</button>
+                <button class="neo-btn filter-btn" data-filter="pending">Pending</button>
+                <button class="neo-btn filter-btn" data-filter="completed">Completed</button>
+            </div>
+            <div id="cardsContainer" class="row g-3"></div>
+        </section>
+    </main>
+
+ <!-- Topic Creation Wizard Modal -->
+<div id="topicModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Create New Topic</h3>
+
+        <label>Topic Name</label>
+        <input id="topicName" class="neo-input mb-2" placeholder="e.g. GitHub Copilot Agent AI">
+
+        <label>Target Audience</label>
+        <input id="topicAudience" class="neo-input mb-2" placeholder="e.g. Professional Software Developers">
+
+        <label>Learning Objectives</label>
+        <textarea id="topicObjectives" class="neo-textarea mb-2" rows="2" placeholder="e.g. Understand agent mode, master prompts..."></textarea>
+
+        <label>Lesson Count</label>
+        <input id="lessonCount" type="number" class="neo-input mb-2" value="12" min="1" max="50">
+
+        <label>Difficulty Level</label>
+        <select id="difficultyLevel" class="neo-select mb-2">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Professional">Professional</option>
+        </select>
+
+        <label>Additional Context</label>
+        <textarea id="topicContext" class="neo-textarea mb-2" rows="3" placeholder="Focus on VS Code usage, security best practices..."></textarea>
+        <label>Upload supporting document(s)</label>
+        <input id="topicDocs" type="file" class="neo-input mb-3" multiple accept=".txt,.pdf,.docx,.pptx,.xlsx">
+
+        <!-- TEST OPTIONS -->
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="addTest">
+            <label class="form-check-label" for="addTest">Add test after completion</label>
+        </div>
+        <div id="testOpts" style="display:none;" class="border p-2 mb-3">
+            <label>Number of questions</label>
+            <input id="testCount" type="number" class="neo-input mb-2" value="5" min="1" max="20">
+            <label>Question type</label>
+            <select id="testType" class="neo-select mb-2">
+                <option value="multiple">Multiple choice</option>
+                <option value="yesno">Yes / No</option>
+                <option value="mixed">Mixed</option>
+            </select>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="addCert">
+                <label class="form-check-label" for="addCert">Generate certificate/badge</label>
+            </div>
+            <div id="certOpts" style="display:none;">
+                <label>CTA button text</label>
+                <input id="certBtnText" class="neo-input mb-2" value="Download Badge">
+                <label>E-mail address (optional)</label>
+                <input id="certEmail" class="neo-input mb-2" placeholder="leave empty to skip e-mail">
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button id="generateTopicBtn" class="neo-btn">GENERATE TOPIC & LESSONS</button>
+            <button class="neo-btn" onclick="closeModal('topicModal')">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+     
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Settings</h3>
+            <label>API Key (Groq/OpenAI compatible)</label>
+            <input id="apiKey" class="neo-input mb-2" type="password" placeholder="gsk_...">
+            <button id="fetchModelsBtn" class="neo-btn mb-2">SAVE & FETCH MODELS</button>
+            <label>Model</label>
+            <select id="modelSelect" class="neo-select mb-2"></select>
+            <label>Temperature <span id="tempVal">0.7</span></label>
+            <input id="temperature" type="range" min="0" max="2" step="0.1" value="0.7" class="w-100 mb-2">
+            <label>Max Tokens <span id="tokensVal">2500</span></label>
+            <input id="maxTokens" type="range" min="100" max="4000" step="100" value="1000" class="w-100 mb-2">
+            <label>System Prompt</label>
+            <textarea id="systemPrompt" class="neo-textarea mb-3" rows="4">You are an expert AI tutor. Provide concise, accurate, and helpful answers.</textarea>
+            <div class="d-flex gap-2">
+                <button id="exportBtn" class="neo-btn">Export Data</button>
+                <button id="importBtn" class="neo-btn">Import Data</button>
+                <input id="importFile" type="file" accept=".json" style="display:none;">
+            </div>
+            <button class="neo-btn mt-3" onclick="closeModal('settingsModal')">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- AI Chat Panel -->
+    <aside id="chatPanel" class="chat-panel">
+        <div class="neo-card d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">AI Expert</h5>
+            <button id="closeChatBtn" class="neo-btn btn-sm">X</button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-group">
+            <textarea id="chatInput" class="neo-textarea chat-input" rows="2" placeholder="Ask a question..."></textarea>
+            <button id="sendChatBtn" class="neo-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        const state = {
+            topics: [],
+            currentTopicId: null,
+            cards: [],
+            filter: 'all',
+            chatHistory: [],
+            settings: {
+                apiKey: '',
+                model: 'llama3-8b-8192',
+                temperature: 0.7,
+                maxTokens: 1000,
+                systemPrompt: 'You are an expert AI tutor. Provide concise, accurate, and helpful answers.'
+            }
+        };
+
+        // LocalStorage keys
+        const STORAGE_KEYS = {
+            topics: 'cardiq_topics',
+            cards: 'cardiq_cards',
+            settings: 'cardiq_settings',
+            currentTopicId: 'cardiq_current_topic',
+            chatHistory: 'cardiq_chat_history',
+            notes: 'cardiq_notes',
+            done: 'cardiq_done'
+        };
+
+        // Utility: Generate random ID
+        const uuid = () => Math.random().toString(36).slice(2);
+
+        // LocalStorage helpers
+        const loadState = () => {
+            try {
+                state.topics = JSON.parse(localStorage.getItem(STORAGE_KEYS.topics)) || [];
+                state.settings = { ...state.settings, ...JSON.parse(localStorage.getItem(STORAGE_KEYS.settings)) };
+                state.currentTopicId = localStorage.getItem(STORAGE_KEYS.currentTopicId);
+                state.chatHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.chatHistory)) || [];
+            } catch (e) {
+                console.warn('Failed to load state from localStorage');
+            }
+        };
+
+        const saveState = () => {
+            localStorage.setItem(STORAGE_KEYS.topics, JSON.stringify(state.topics));
+            localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
+            localStorage.setItem(STORAGE_KEYS.currentTopicId, state.currentTopicId);
+            localStorage.setItem(STORAGE_KEYS.chatHistory, JSON.stringify(state.chatHistory));
+        };
+
+        const getCards = (topicId) => {
+            try {
+                return JSON.parse(localStorage.getItem(`cardiq_cards_${topicId}`)) || [];
+            } catch {
+                return [];
+            }
+        };
+
+        const saveCards = (topicId, cards) => {
+            localStorage.setItem(`cardiq_cards_${topicId}`, JSON.stringify(cards));
+        };
+
+        const getNotes = (cardId) => {
+            const notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || {};
+            return notes[cardId] || '';
+        };
+
+        const setNote = (cardId, text) => {
+            const notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || {};
+            notes[cardId] = text;
+            localStorage.setItem(STORAGE_KEYS.notes, JSON.stringify(notes));
+        };
+
+        const getDone = (cardId) => {
+            const done = JSON.parse(localStorage.getItem(STORAGE_KEYS.done)) || {};
+            return !!done[cardId];
+        };
+
+        const setDone = (cardId, done) => {
+            const doneMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.done)) || {};
+            doneMap[cardId] = done;
+            localStorage.setItem(STORAGE_KEYS.done, JSON.stringify(doneMap));
+        };
+// ----------  FIXED API HELPER  ----------
+const apiCall = async (messages, stream = false) => {
+    const { apiKey, model, temperature, maxTokens } = state.settings;
+    if (!apiKey) throw new Error('API key missing');
+
+    const body = {
+        model,
+        messages,
+        temperature,
+        max_tokens: maxTokens
+    };
+
+    // Groq: do NOT send "stream" at all unless you really want streaming
+    if (stream) body.stream = true;
+
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`API error ${res.status}: ${txt}`);
+    }
+    if (stream) return res.body;
+
+    const data = await res.json();
+    return data.choices[0].message.content;
+};
+
+
+        const fetchModels = async () => {
+            const { apiKey } = state.settings;
+            if (!apiKey) return;
+            const res = await fetch('https://api.groq.com/openai/v1/models', {
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            });
+            if (!res.ok) throw new Error('Failed to fetch models');
+            const data = await res.json();
+            const select = document.getElementById('modelSelect');
+            select.innerHTML = '';
+            data.data.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = m.id;
+                select.appendChild(opt);
+            });
+            if (state.settings.model) select.value = state.settings.model;
+        };
+
+        // Generate topic prompt
+  const generateTopicPrompt = (name, audience, objectives, count, context, difficulty, addTest, testCount, testType) => `
+Create a micro-learning course on "${name}" for "${audience}".
+Difficulty: ${difficulty}
+Objectives: ${objectives}
+Create ${count} learning cards.
+Additional context: ${context}
+
+Return ONLY a JSON object with two keys:
+1. "cards": array of ${count} objects, each with:
+   - title (string)
+   - content (2-3 paragraphs, string)
+   - keyPoints (array of 3-5 strings)
+   - difficultyLevel ("${difficulty}")
+   - timeEstimate (string, e.g. "5 min")
+2. "test": array of ${testCount} question objects (only if addTest=true) with:
+   - question (string)
+   - type ("multiple" | "yesno")
+   - choices: array of strings (empty for yesno)
+   - correct: number (index of correct choice) or boolean (for yesno)
+
+Do NOT write or include markdown fences or extra text. Return raw valid JSON only, no extra text.
+`;
+      
+
+        // Generate cards
+  async function generateCards() {
+        const name        = document.getElementById('topicName').value.trim();
+        const audience    = document.getElementById('topicAudience').value.trim();
+        const objectives  = document.getElementById('topicObjectives').value.trim();
+        const count       = parseInt(document.getElementById('lessonCount').value);
+        let context       = document.getElementById('topicContext').value.trim();
+        const difficulty  = document.getElementById('difficultyLevel').value;
+        const addTest     = document.getElementById('addTest').checked;
+        const testCount   = addTest ? parseInt(document.getElementById('testCount').value) : 0;
+        const testType    = addTest ? document.getElementById('testType').value : '';
+        const addCert     = document.getElementById('addCert').checked;
+        const certBtnText = addCert ? document.getElementById('certBtnText').value : '';
+        const certEmail   = addCert ? document.getElementById('certEmail').value.trim() : '';
+
+        // Handle document upload
+        const docsInput = document.getElementById('topicDocs');
+        const files = docsInput.files;
+        if (files && files.length > 0) {
+            context += '\n\n--- Uploaded Document Content ---\n';
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type === 'text/plain') {
+                    context += await file.text();
+                } else if (file.type === 'application/pdf') {
+                    context += '\n[PDF file uploaded: ' + file.name + ']';
+                } else if (file.name.endsWith('.docx')) {
+                    context += '\n[DOCX file uploaded: ' + file.name + ']';
+                } else if (file.name.endsWith('.pptx')) {
+                    context += '\n[PPTX file uploaded: ' + file.name + ']';
+                } else if (file.name.endsWith('.xlsx')) {
+                    context += '\n[XLSX file uploaded: ' + file.name + ']';
+                } else {
+                    context += '\n[Unsupported file: ' + file.name + ']';
+                }
+            }
+        }
+
+        if (!name || !audience || !objectives) return alert('Fill required fields');
+
+    const prompt = generateTopicPrompt(name, audience, objectives, count, context, difficulty, addTest, testCount, testType);
+
+    try {
+        const raw  = await apiCall([{ role: 'user', content: prompt }]);
+const cleaned = raw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+const data = JSON.parse(cleaned);
+
+
+        if (!data.cards || !Array.isArray(data.cards)) throw new Error('Invalid cards array');
+
+        const topicId = uuid();
+        const topic   = { id: topicId, name, difficulty, addTest, addCert, certBtnText, certEmail };
+        state.topics.push(topic);
+        state.currentTopicId = topicId;
+
+        saveCards(topicId, data.cards.map(c => ({ ...c, id: uuid() })));
+
+        if (addTest && data.test) {
+            localStorage.setItem(`cardiq_test_${topicId}`, JSON.stringify(data.test));
+        }
+
+        saveState();
+        closeModal('topicModal');
+        renderUI();
+    } catch (e) {
+        alert('Generation failed: ' + e.message);
+    }
+}
+       
+
+        // Render UI
+        const renderTopics = () => {
+            const select = document.getElementById('topicSelect');
+            select.innerHTML = '';
+            state.topics.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.id;
+                opt.textContent = t.name;
+                if (t.id === state.currentTopicId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        };
+
+const renderProgress = () => {
+    const cards = getCards(state.currentTopicId);
+    const done  = cards.filter(c => getDone(c.id)).length;
+    const total = cards.length;
+    const pct   = total ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressText').textContent = `${done}/${total} Completed (${pct}%)`;
+    document.getElementById('progressBar').style.width = `${pct}%`;
+
+    /*  ➜  if just finished, show test  */
+    if (done === total && total > 0) {
+        const topic = state.topics.find(t => t.id === state.currentTopicId);
+        if (topic && topic.addTest) showTest(topic);
+    }
+};
+
+
+        const renderCards = () => {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            const cards = getCards(state.currentTopicId);
+            const filtered = cards.filter(c => {
+                if (state.filter === 'completed') return getDone(c.id);
+                if (state.filter === 'pending') return !getDone(c.id);
+                return true;
+            });
+            filtered.forEach(card => {
+                const done = getDone(card.id);
+                const col = document.createElement('div');
+                col.className = 'col-12 col-md-6 col-lg-4';
+                col.innerHTML = `
+                    <div class="neo-card ${done ? 'card-done' : ''}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6>${card.title}</h6>
+                            <span class="badge bg-dark">${card.difficultyLevel}</span>
+                        </div>
+                        <p>${card.content}</p>
+                        <ul>${card.keyPoints.map(k => `<li>${k}</li>`).join('')}</ul>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>Time: ${card.timeEstimate}</small>
+                            <label><input type="checkbox" class="mark-done" data-id="${card.id}" ${done ? 'checked' : ''}> Done</label>
+                        </div>
+                        <div class="mt-2">
+                            <textarea class="neo-textarea notes-input" data-id="${card.id}" placeholder="Add notes..." rows="2">${getNotes(card.id)}</textarea>
+                        </div>
+                        <button class="neo-btn ask-ai-btn mt-2 w-100" data-id="${card.id}">Ask AI</button>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+            // Daily tip
+            if (cards.length) {
+                const today = new Date().toDateString();
+                const dailyIndex = Math.abs(today.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % cards.length;
+                const tip = cards[dailyIndex];
+                document.getElementById('tipContent').innerHTML = `<strong>${tip.title}</strong><br>${tip.content.split('\n')[0]}`;
+            }
+        };
+
+        const renderUI = () => {
+            renderTopics();
+            renderCards();
+            renderProgress();
+        };
+
+        // Chat
+        const appendChat = (role, text) => {
+            const box = document.getElementById('chatMessages');
+            const msg = document.createElement('div');
+            msg.className = `chat-msg ${role}`;
+            msg.textContent = text;
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
+        };
+
+        const sendChat = async () => {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            appendChat('user', text);
+            input.value = '';
+            const cards = getCards(state.currentTopicId);
+            const context = cards.map(c => `${c.title}\n${c.content}`).join('\n\n');
+            const messages = [
+                { role: 'system', content: state.settings.systemPrompt + '\n\nContext:\n' + context },
+                ...state.chatHistory.slice(-10),
+                { role: 'user', content: text }
+            ];
+            try {
+                const reply = await apiCall(messages);
+                appendChat('assistant', reply);
+                state.chatHistory.push({ role: 'user', content: text }, { role: 'assistant', content: reply });
+                saveState();
+            } catch (e) {
+                appendChat('assistant', 'Error: ' + e.message);
+            }
+        };
+
+        // Export/Import
+        const exportData = () => {
+            const data = {
+                topics: state.topics,
+                settings: state.settings,
+                cards: {},
+                notes: localStorage.getItem(STORAGE_KEYS.notes),
+                done: localStorage.getItem(STORAGE_KEYS.done)
+            };
+            state.topics.forEach(t => {
+                data.cards[t.id] = getCards(t.id);
+            });
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cardiq-backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        const importData = (file) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.topics) localStorage.setItem(STORAGE_KEYS.topics, JSON.stringify(data.topics));
+                    if (data.settings) localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(data.settings));
+                    if (data.notes) localStorage.setItem(STORAGE_KEYS.notes, data.notes);
+                    if (data.done) localStorage.setItem(STORAGE_KEYS.done, data.done);
+                    if (data.cards) {
+                        Object.entries(data.cards).forEach(([topicId, cards]) => {
+                            saveCards(topicId, cards);
+                        });
+                    }
+                    loadState();
+                    renderUI();
+                    alert('Import successful');
+                } catch (e) {
+                    alert('Import failed');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        // Modal helpers
+        const openModal = id => document.getElementById(id).style.display = 'block';
+        const closeModal = id => document.getElementById(id).style.display = 'none';
+
+        // Event listeners
+       /* ==========  EVENT LISTENERS  ========== */
+
+/* ---- open topic wizard ---- */
+document.getElementById('newTopicBtn').onclick = () => openModal('topicModal');
+
+/* ---- open settings + restore chosen model ---- */
+document.getElementById('settingsBtn').onclick = () => {
+    openModal('settingsModal');
+
+    // restore user’s key / sliders / prompt
+    document.getElementById('apiKey').value = state.settings.apiKey;
+    document.getElementById('temperature').value = state.settings.temperature;
+    document.getElementById('tempVal').textContent = state.settings.temperature;
+    document.getElementById('maxTokens').value = state.settings.maxTokens;
+    document.getElementById('tokensVal').textContent = state.settings.maxTokens;
+    document.getElementById('systemPrompt').value = state.settings.systemPrompt;
+
+    // fetch models if we have a key
+    if (state.settings.apiKey) {
+        fetchModels()
+            .then(() => {
+                /*  ⬇️  RE-SELECT the previously chosen model  */
+                if (state.settings.model) {
+                    document.getElementById('modelSelect').value = state.settings.model;
+                }
+            })
+            .catch(() => {});
+    }
+};
+
+/* ---- persist model choice immediately ---- */
+document.getElementById('modelSelect').addEventListener('change', e => {
+    state.settings.model = e.target.value;               // memory
+    localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings)); // disk
+});
+
+/* ---- fetch models button ---- */
+document.getElementById('fetchModelsBtn').onclick = () => {
+    state.settings.apiKey = document.getElementById('apiKey').value.trim();
+    fetchModels().catch(err => alert('Fetch failed: ' + err.message));
+};
+
+/* ---- sliders ---- */
+document.getElementById('temperature').oninput = e => {
+    state.settings.temperature = parseFloat(e.target.value);
+    document.getElementById('tempVal').textContent = state.settings.temperature;
+};
+document.getElementById('maxTokens').oninput = e => {
+    state.settings.maxTokens = parseInt(e.target.value);
+    document.getElementById('tokensVal').textContent = state.settings.maxTokens;
+};
+document.getElementById('systemPrompt').onchange = e => {
+    state.settings.systemPrompt = e.target.value;
+};
+
+/* ---- export / import ---- */
+document.getElementById('exportBtn').onclick = exportData;
+document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+document.getElementById('importFile').onchange = e => {
+    if (e.target.files[0]) importData(e.target.files[0]);
+};
+
+/* ---- topic switcher ---- */
+document.getElementById('topicSelect').onchange = e => {
+    state.currentTopicId = e.target.value;
+    saveState();
+    renderUI();
+};
+
+/* ---- chat panel ---- */
+document.getElementById('chatToggleBtn').onclick = () => document.getElementById('chatPanel').classList.add('open');
+document.getElementById('closeChatBtn').onclick  = () => document.getElementById('chatPanel').classList.remove('open');
+document.getElementById('sendChatBtn').onclick   = sendChat;
+document.getElementById('chatInput').onkeydown   = e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChat();
+    }
+};
+
+/* ---- card filters / actions (delegated) ---- */
+document.addEventListener('click', e => {
+    /* filter tabs */
+    if (e.target.classList.contains('filter-btn')) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        state.filter = e.target.dataset.filter;
+        renderCards();
+    }
+    /* mark done */
+    if (e.target.classList.contains('mark-done')) {
+        const cardId = e.target.dataset.id;
+        setDone(cardId, e.target.checked);
+        renderProgress();
+        renderCards();
+    }
+    /* ask-ai button */
+    if (e.target.classList.contains('ask-ai-btn')) {
+        const cardId = e.target.dataset.id;
+        const card = getCards(state.currentTopicId).find(c => c.id === cardId);
+        if (card) {
+            document.getElementById('chatPanel').classList.add('open');
+            appendChat('assistant', `Ask me anything about: ${card.title}`);
+        }
+    }
+});
+
+/* ---- save notes ---- */
+document.addEventListener('change', e => {
+    if (e.target.classList.contains('notes-input')) {
+        const cardId = e.target.dataset.id;
+        setNote(cardId, e.target.value);
+    }
+});
+/* ---- generate-topic wizard ---- */
+document.getElementById('generateTopicBtn').onclick = generateCards;
+
+/* ---- toggle test / certificate blocks ---- */
+document.getElementById('addTest').onchange = e => {
+    document.getElementById('testOpts').style.display = e.target.checked ? 'block' : 'none';
+};
+document.getElementById('addCert').onchange = e => {
+    document.getElementById('certOpts').style.display = e.target.checked ? 'block' : 'none';
+};
+      
+/* ==========  QUIZ + CERTIFICATE  ========== */
+
+function showTest(topic) {
+    const questions = JSON.parse(localStorage.getItem(`cardiq_test_${topic.id}`) || '[]');
+    if (!questions.length) return;
+    document.getElementById('chatPanel').classList.add('open');
+    document.getElementById('quizTitle').textContent = `Quick test – ${topic.name}`;
+    const box = document.getElementById('quizBox');
+    box.innerHTML = '';
+    questions.forEach((q, i) => {
+        const div = document.createElement('div');
+        div.className = 'neo-card mb-2';
+        div.innerHTML = `<h6>${i + 1}. ${q.question}</h6>`;
+        if (q.type === 'yesno') {
+            div.innerHTML += `
+                <label class="me-3"><input type="radio" name="q${i}" value="true"> Yes</label>
+                <label><input type="radio" name="q${i}" value="false"> No</label>`;
+        } else {
+            q.choices.forEach((c, k) => {
+                div.innerHTML += `
+                    <label class="d-block"><input type="radio" name="q${i}" value="${k}"> ${c}</label>`;
+            });
+        }
+        box.appendChild(div);
+    });
+    document.getElementById('certArea').style.display = 'none';
+    document.getElementById('submitQuizBtn').style.display = 'inline-block';
+    openModal('quizModal');
+
+    /* submit handler */
+    document.getElementById('submitQuizBtn').onclick = () => {
+        let score = 0;
+        questions.forEach((q, i) => {
+            const sel = box.querySelector(`input[name="q${i}"]:checked`);
+            if (!sel) return;
+            if (q.type === 'yesno') {
+                if ((sel.value === 'true') === q.correct) score++;
+            } else {
+                if (parseInt(sel.value) === q.correct) score++;
+            }
+        });
+        const pct = Math.round((score / questions.length) * 100);
+        generateBadge(topic.name, pct, topic.certBtnText, topic.certEmail);
+
+        // Reset all lesson cards to not completed for current topic
+        const cards = getCards(topic.id);
+        const doneMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.done)) || {};
+        cards.forEach(card => {
+            doneMap[card.id] = false;
+        });
+        localStorage.setItem(STORAGE_KEYS.done, JSON.stringify(doneMap));
+        renderProgress();
+        renderCards();
+    };
+}
+
+function generateBadge(course, pct, btnText, email) {
+    const canvas = document.getElementById('certCanvas');
+    const ctx    = canvas.getContext('2d');
+    ctx.fillStyle = '#ff0';
+    ctx.fillRect(0, 0, 600, 400);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth   = 6;
+    ctx.strokeRect(0, 0, 600, 400);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 48px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('CARDIQ BADGE', 300, 120);
+    ctx.font = '36px sans-serif';
+    ctx.fillText(`Completed: ${course}`, 300, 190);
+    ctx.font = 'bold 72px sans-serif';
+    ctx.fillText(`${pct}%`, 300, 280);
+    ctx.font = '24px sans-serif';
+    ctx.fillText(new Date().toLocaleDateString(), 300, 340);
+
+    document.getElementById('certArea').style.display = 'block';
+    document.getElementById('submitQuizBtn').style.display = 'none';
+
+    /* download button */
+    document.getElementById('dlCertBtn').onclick = () => {
+        canvas.toBlob(blob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'cardiq-badge.png';
+            a.click();
+        });
+    };
+
+    /* optional e-mail button */
+    if (email) {
+        document.getElementById('mailCertBtn').style.display = 'inline-block';
+        document.getElementById('mailCertBtn').onclick = () => {
+            canvas.toBlob(blob => {
+                const file = new File([blob], 'badge.png', { type: 'image/png' });
+                const data = new FormData();
+                data.append('address', email);
+                data.append('file', file);
+                /* simple POST to a free file-mailer webhook (or your own endpoint) */
+                fetch('https://file.io/?expires=1d', { method: 'POST', body: data })
+                    .then(r => r.json())
+                    .then(j => alert('Badge link sent to ' + email + '\n' + j.link))
+                    .catch(err => alert('E-mail failed: ' + err));
+            });
+        };
+    }
+}
+      
+/* ---- close modals on outside click ---- */
+window.onclick = e => {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.style.display = 'none';
+    }
+};
+
+           // Init
+        loadState();
+        renderUI();
+    </script>
+  <!-- Quiz / Certificate Modal -->
+<div id="quizModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:700px">
+        <h4 id="quizTitle">Quick Test</h4>
+        <div id="quizBox"></div>
+        <div class="d-flex gap-2 mt-3">
+            <button id="submitQuizBtn" class="neo-btn">SUBMIT</button>
+            <button class="neo-btn" onclick="closeModal('quizModal')">SKIP</button>
+        </div>
+        <div id="certArea" class="mt-3 text-center" style="display:none;">
+            <canvas id="certCanvas" width="600" height="400" style="border:3px solid #000"></canvas><br>
+            <button id="dlCertBtn" class="neo-btn mt-2">DOWNLOAD BADGE</button>
+            <button id="mailCertBtn" class="neo-btn mt-2" style="display:none;">E-MAIL BADGE</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
