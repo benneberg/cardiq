@@ -5,6 +5,41 @@
     <title>CardIQ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+     
+        <meta name="description" content="An AI-Powered Microlearning Platform with Neo-Brutalist Design
+
+CardIQ is a smart learning platform that transforms any topic into bite-sized, gamified lessons using AI. Perfect for corporate training, onboarding, skill development, and self-directed learning." />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#ffff00" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@CardIQ" />
+        <meta name="twitter:url" content="https://benneberg.github.io/cardiq/" />
+        <meta name="twitter:title" content="CardIQ" />
+        <meta name="twitter:description" content="An AI-Powered Microlearning Platform with Neo-Brutalist Design
+
+CardIQ is a smart learning platform that transforms any topic into bite-sized, gamified lessons using AI. Perfect for corporate training, onboarding, skill development, and self-directed learning." />
+        <meta name="twitter:image" content="" />
+
+        <!-- Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="CardIQ" />
+        <meta property="og:description" content="An AI-Powered Microlearning Platform with Neo-Brutalist Design
+
+CardIQ is a smart learning platform that transforms any topic into bite-sized, gamified lessons using AI. Perfect for corporate training, onboarding, skill development, and self-directed learning." />
+        <meta property="og:site_name" content="CardIQ" />
+        <meta property="og:url" content="https://benneberg.github.io/cardiq/" />
+        <meta property="og:image" content="" />
+
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="stylesheet" href="/css/native-like-experience.css" />
+        <script async src="https://unpkg.com/pwacompat" crossOrigin="anonymous"></script>
+
+        <!-- Apple touch icon -->
+        <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon_120.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon_180.png" />
     <style>
         :root {
             --primary: #000;
@@ -944,6 +979,16 @@ window.onclick = e => {
         </div>
     </div>
 </div>
-
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", function () {
+                    navigator.serviceWorker
+                        .register("/serviceWorker.js")
+                        .then((registration) => {
+                            console.log("SW registration successful");
+                        });
+                });
+            }
+        </script>
 </body>
 </html>
