@@ -1,3 +1,73 @@
+# PKM
+CardIQ
+An AI-Powered Microlearning Platform with Neo-Brutalist Design
+CONFIDENCE: 90%
+ELEVATOR PITCH
+CardIQ is a smart learning platform that transforms any topic into bite-sized, gamified lessons using AI. It leverages high-speed inference to generate custom curricula, making it an ideal tool for corporate onboarding, skill development, and self-directed learning without requiring any installation.
+THE CORE PROBLEM
+Traditional learning materials are often dense and difficult to fit into busy schedules, leading to poor knowledge retention and lack of engagement.
+KEY BENEFITS
+Instant AI-generated custom curricula
+Mobile-first microlearning approach
+Context-aware expert chat support
+Zero-installation browser-based access
+Enhanced focus through high-contrast design
+Features Matrix
+6
+AI Curriculum Generation
+HIGH
+Automatically creates comprehensive lesson plans on any topic using the Groq API for fast LLM inference.
+
+#AI
+#Groq
+#automation
+#learning path
+Smart Card System
+HIGH
+Lessons are organized into bite-sized interactive cards featuring difficulty levels, time estimates, and key takeaways.
+
+#microlearning
+#UX
+#interactive
+AI Expert Chat
+HIGH
+A context-aware AI assistant that understands the current curriculum to provide instant help and deep-dives.
+
+#chat
+#LLM
+#support
+#tutor
+Neo-Brutalist Design
+MEDIUM
+Bold, high-contrast interface designed for maximum readability and a unique aesthetic experience.
+
+#UI
+#Neo-Brutalism
+#accessibility
+#focus
+Progress Tracking & Gamification
+MEDIUM
+Visual progress bars, daily random tips, and status filtering to monitor learning achievements.
+
+#gamification
+#analytics
+#retention
+Data Portability & Management
+MEDIUM
+Complete portability with JSON-based import/export functionality and local browser storage.
+
+#privacy
+#portability
+#JSON
+#collaboration
+Brand Identity
+COLOR PALETTE
+VOICE TONE
+Professional
+
+
+
+
 CardIQ Product Video Script
 Here’s a complete script for a short (45-60 second) informative product video tailored for your landing page at https://benneberg.github.io/cardiq. This is designed as a high-production-value promo, using AI-driven storytelling. I’ve structured it based on your app’s description and the provided screenshots as visual assets.
 The video assumes a modern, neo-brutalist aesthetic to match your app’s design: bold black-and-yellow contrasts, sharp borders, and dynamic transitions. It starts with a hook, presents the core value, showcases key features via scene sequences, and ends with a call to action.
