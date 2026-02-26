@@ -65,6 +65,14 @@ COLOR PALETTE
 VOICE TONE
 Professional
 
+## Marketing copy
+
+PRODUCT COPY
+"Since "CardIQ" could apply to several industries (Fintech, Medical, or Business Networking), here are a few professional taglines categorized by its likely purpose: **If CardIQ is a Fintech or Credit Analytics Platform:** * "The Intelligence Behind the Transaction." * "Precision Analytics for Smarter Credit." * "Empowering Financial Clarity through Data." * "Where Data Meets Financial Strategy." **If CardIQ is a Medical/Cardiology Technology:** * "Precision Intelligence for Heart Health." * "The Smart Standard in Cardiac Diagnostics." * "Advancing Cardiology through Clinical Intelligence." * "Data-Driven Insights for Life-Saving Care." **If CardIQ is a Digital Business Card/Networking Tool:** * "The Intelligent Standard for Professional Connection." * "Elevate Your Network with Actionable Intelligence." * "Strategic Networking for the Modern Professional." **Best All-Around Professional Tagline:** * **"CardIQ: Precision Intelligence. Proven Results."**"
+
+
+
+
 
 
 
