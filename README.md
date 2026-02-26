@@ -1,5 +1,7 @@
 # CardIQ
+EMBED
 
+![Demo](https://demo-forge.preview.emergentagent.com/renders/42f2a8e7-da34-4030-aa40-e5dc9df7b89f_db0f5230-1f11-492b-894d-5b9a51a16221.gif)
 **An AI-Powered Microlearning Platform with Neo-Brutalist Design**
 
 CardIQ is a smart learning platform that transforms any topic into bite-sized, gamified lessons using AI. Perfect for corporate training, onboarding, skill development, and self-directed learning.
